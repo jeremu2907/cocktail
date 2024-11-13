@@ -17,10 +17,12 @@ services:
   
   gradle:
     container_name: 'cocktail-app'
-    image: ''
-    entrypoint: ['gradle', 'bootRun', '--args="--spring.config.location=classpath:/opt/app/src/main/resources/deployedApplication.properties"']
+    image: 'ghcr.io/jeremu2907/cocktail:latest'
+    entrypoint: ['gradle', 'bootRun', '--args="--spring.config.location=classpath:/deployedApplication.properties"']
     networks:
       - cocktail
+    ports:
+      - '8081:8081'
 
 networks:
   cocktail:
