@@ -1,0 +1,38 @@
+services:
+  mysql:
+    container_name: 'cocktail-mysql'
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=mydatabase'
+      - 'MYSQL_PASSWORD=secret'
+      - 'MYSQL_ROOT_PASSWORD=verysecret'
+      - 'MYSQL_USER=myuser'
+    hostname: 'cocktail-mysql'
+    volumes:
+      - './mysql:/var/lib/mysql'
+    networks:
+      - cocktail
+    ports:
+      - '3306:3306'
+  
+  gradle:
+    container_name: 'cocktail-app'
+    image: 'gradle:8.11.0-jdk17'
+    entrypoint: ['/opt/app/devEntry.bash']
+    volumes:
+      - './src:/opt/app/src'
+      - './gradle:/opt/app/gradle'
+      - './devEntry.bash:/opt/app/devEntry.bash'
+      - './build.gradle:/opt/app/build.gradle'
+      - './settings.gradle:/opt/app/settings.gradle'
+    environment:
+      - 'HOME=/opt/app'
+      - 'RUN=gradle bootRun --args="--spring.config.location=classpath:/deployedApplication.properties"'
+    networks:
+      - cocktail
+    ports:
+      - '8081:8081'
+
+networks:
+  cocktail:
+    external: true
