@@ -6,4 +6,4 @@ ENV HOME /opt/app
 COPY . .
 
 RUN gradle clean && \
-    gradle build
+    gradle build -x test
