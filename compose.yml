@@ -7,7 +7,21 @@ services:
       - 'MYSQL_PASSWORD=secret'
       - 'MYSQL_ROOT_PASSWORD=verysecret'
       - 'MYSQL_USER=myuser'
+    hostname: 'cocktail-mysql'
     volumes:
       - './mysql:/var/lib/mysql'
+    networks:
+      - cocktail
     ports:
       - '3306:3306'
+  
+  gradle:
+    container_name: 'cocktail-app'
+    image: ''
+    entrypoint: ['gradle', 'bootRun', '--args="--spring.config.location=classpath:/opt/app/src/main/resources/deployedApplication.properties"']
+    networks:
+      - cocktail
+
+networks:
+  cocktail:
+    external: true
