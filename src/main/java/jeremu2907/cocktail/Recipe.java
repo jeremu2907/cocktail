@@ -1,5 +1,8 @@
 package jeremu2907.cocktail;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,5 +46,20 @@ public class Recipe {
     public String getContent()
     {
         return this.content;
+    }
+
+    public String json()
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        try
+        {
+            String json = mapper.writeValueAsString(this);
+            return json;
+        } 
+        catch (JsonProcessingException e) 
+        {
+            e.printStackTrace();
+            return e.toString();
+        }
     }
 }

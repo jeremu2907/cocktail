@@ -1,5 +1,9 @@
 package jeremu2907.cocktail;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,27 +23,49 @@ public class MainController {
     private RecipeRepository recipeRepository;
 
     @PostMapping(path = "/post")
-    public @ResponseBody String addRecipe(
+    public @ResponseBody ResponseEntity<?> addRecipe(
         @RequestBody Recipe recipe
     )
     {
-        Recipe r = new Recipe();
-        r.setName(recipe.getName());
-        r.setContent(recipe.getContent());
-        recipeRepository.save(r);
-        return "success";
+        try
+        {
+            Recipe r = new Recipe();
+            r.setName(recipe.getName());
+            r.setContent(recipe.getContent());
+            recipeRepository.save(r);
+            return ResponseEntity.ok(r);
+        }
+        catch(IllegalArgumentException e)
+        {
+            return ResponseEntity.badRequest().body(e.toString());
+        }
+        catch(NoSuchElementException e)
+        {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PatchMapping(path="/patch")
-    public @ResponseBody String editRecipe(
+    public @ResponseBody ResponseEntity<?> editRecipe(
         @RequestBody Recipe recipe
     )
     {
-        Recipe r = recipeRepository.findById(recipe.getId()).get();
-        r.setName(recipe.getName());
-        r.setContent(recipe.getContent());
-        recipeRepository.save(r);
-        return "success";
+        try
+        {
+            Recipe r = recipeRepository.findById(recipe.getId()).get();
+            r.setName(recipe.getName());
+            r.setContent(recipe.getContent());
+            recipeRepository.save(r);
+            return ResponseEntity.ok(r);
+        }
+        catch(IllegalArgumentException e)
+        {
+            return ResponseEntity.badRequest().body(e.toString());
+        }
+        catch(NoSuchElementException e)
+        {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping(path="/delete")
@@ -47,20 +73,42 @@ public class MainController {
         @RequestParam("id") Integer id
     )
     {
-        recipeRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        try
+        {
+            recipeRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        catch(IllegalArgumentException e)
+        {
+            return ResponseEntity.badRequest().body(e.toString());
+        }
     }
 
     @GetMapping(path="/all")
-    public @ResponseBody Iterable<Recipe> getAllRecipe() {
-        return recipeRepository.findAll();
+    public @ResponseBody ResponseEntity<Iterable<Recipe>> getAllRecipe() {
+        return ResponseEntity.ok(recipeRepository.findAll());
     }
 
     @GetMapping(path="/get")
-    public @ResponseBody Recipe get(
+    public @ResponseBody ResponseEntity<?> get(
         @RequestParam("id") Integer id
     )
     {
-        return recipeRepository.findById(id).get();
+        try
+        {
+            Optional<Recipe> r = recipeRepository.findById(id);
+            if(r.isPresent())
+            {
+                return ResponseEntity.ok(r.get());
+            }
+            else
+            {
+                return ResponseEntity.notFound().build();
+            }
+        }
+        catch(IllegalArgumentException e)
+        {
+            return ResponseEntity.badRequest().body(e.toString());
+        }
     }
 }
